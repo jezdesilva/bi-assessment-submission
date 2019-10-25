@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SearchTypeSelector should match the snapshot 1`] = `"<div class=\\"ui right floated buttons searchTypeSelector\\"><button name=\\"title\\" class=\\"ui active button\\"><i aria-hidden=\\"true\\" class=\\"book icon\\"></i>Title</button><div class=\\"or\\"></div><button name=\\"author\\" class=\\"ui button\\"><i aria-hidden=\\"true\\" class=\\"user icon\\"></i>Author</button><div class=\\"or\\"></div><button name=\\"q\\" class=\\"ui button\\"><i aria-hidden=\\"true\\" class=\\"check icon\\"></i>Everything</button></div>"`;

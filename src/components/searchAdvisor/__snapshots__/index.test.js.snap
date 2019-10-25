@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SearchAdvisor should match the snapshot 1`] = `"<div>Search results for &quot;<mark class=\\"queryHighlight\\">test</mark>&quot;</div>"`;

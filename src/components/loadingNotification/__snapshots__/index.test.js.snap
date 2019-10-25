@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoadingNotification should match the snapshot 1`] = `"<div class=\\"ui active transition visible page dimmer\\" style=\\"display: flex;\\"><div class=\\"content\\"><div class=\\"ui text loader\\">Loading...</div></div></div>"`;
