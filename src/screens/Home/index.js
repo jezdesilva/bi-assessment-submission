@@ -1,78 +1,119 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button, Table } from 'semantic-ui-react';
-
-import { getUsersSaga } from '../../actions';
-
+import { useParams } from "react-router-dom";
+import { createStructuredSelector } from 'reselect';
+import { Divider } from 'semantic-ui-react';
+import BookResultsTable from '../../components/bookTable';
+import PaginationSelector from '../../components/pagination';
+import selectors from '../../selectors';
+import {
+  getBooks,
+  setCurrentPage,
+  setSearchType,
+  updateLocation,
+} from '../../actions';
 import styles from './styles';
+import SearchInput from '../../components/searchInput';
+import SearchType from '../../components/searchTypeSelector';
+import SearchAdvisor from '../../components/searchAdvisor';
+import LoadingNotification from '../../components/loadingNotification';
+import Suggestions from '../../components/suggestions';
+import {
+  SEARCH_EVERYTHING,
+  SEARCH_TITLE,
+  SEARCH_AUTHOR,
+} from '../../constants';
 
-class Home extends Component {
-  constructor() {
-    super();
-    this.handleBtnOnClick = this.handleBtnOnClick.bind(this);
+export const Home = ({
+  books,
+  searchType,
+  query,
+  isLoading,
+  page,
+  getBooks,
+  setSearchType,
+  updateLocation,
+}) => {
+  const {
+    rType,
+    rQuery,
+    rPage,
+  } = useParams();
+
+  const pageNumberUpdated = parseInt(rPage, 10) !== parseInt(page, 10);
+  const queryUpdated = rQuery !== query;
+  const typeUpdated =
+    (
+      rType === SEARCH_EVERYTHING ||
+      rType === SEARCH_TITLE ||
+      rType === SEARCH_AUTHOR
+    ) &&
+    rType !== searchType;
+  if (rPage && rQuery && rType) {
+    if (pageNumberUpdated || queryUpdated || typeUpdated) {
+      updateLocation({
+        searchType: rType,
+        page: rPage,
+      })
+      setSearchType(rType);
+      setCurrentPage(rPage);
+      getBooks(rQuery);
+    }
   }
 
-  handleBtnOnClick() {
-    this.props.getUsersSaga();
-  }
+  return (
+    <div style={styles.container}>
+      <Divider />
+      <SearchInput />
+      <SearchType searchType={searchType} />
+      <Suggestions />
+      <Divider />
+      <LoadingNotification show={isLoading} />
+      {books.length > 0 && (
+        <div>
+          <SearchAdvisor query={query} />
+          <Divider />
+          <PaginationSelector />
+          <BookResultsTable books={books} query={query} searchType={searchType} />
+          <PaginationSelector />
+          <Divider />
+        </div>
+      )}
+    </div>
+  )
+};
 
-  render() {
-    const { users } = this.props;
-    return (
-      <div style={styles.container}>
-        {users.length > 0
-          && (
-          <Table
-            striped
-          >
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>Id</Table.HeaderCell>
-                <Table.HeaderCell>Name</Table.HeaderCell>
-                <Table.HeaderCell>Username</Table.HeaderCell>
-                <Table.HeaderCell>E-mail</Table.HeaderCell>
-                <Table.HeaderCell>Phone</Table.HeaderCell>
-                <Table.HeaderCell>Website</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {users.map(({
-                id,
-                name,
-                email,
-                phone,
-                username,
-                website
-              }, i) => (
-                <Table.Row key={i}>
-                  <Table.Cell>{id}</Table.Cell>
-                  <Table.Cell>{name}</Table.Cell>
-                  <Table.Cell>{username}</Table.Cell>
-                  <Table.Cell>{email}</Table.Cell>
-                  <Table.Cell>{phone}</Table.Cell>
-                  <Table.Cell>{website}</Table.Cell>
-                </Table.Row>))}
-            </Table.Body>
-          </Table>
-          )
-        }
-        <Button
-          color="teal"
-          onClick={this.handleBtnOnClick}
-        >
-          Load Users
-        </Button>
-      </div>
-    );
-  }
-}
+Home.propTypes = {
+  books: PropTypes.array,
+  query: PropTypes.string,
+  searchType: PropTypes.string,
+  isLoading: PropTypes.bool,
+  rType: PropTypes.string,
+  rQuery: PropTypes.string,
+  rPage: PropTypes.string,
+};
 
-const mapStateToProps = state => ({
-  users: state.usersReducer.users
+Home.defaultProps = {
+  books: [],
+  query: '',
+  searchType: SEARCH_TITLE,
+  isLoading: false,
+};
+
+const mapStateToProps = createStructuredSelector({
+  books: selectors.selectHighlightedSearchResults(),
+  query: selectors.selectLastQuery,
+  searchType: selectors.selectSearchType,
+  isLoading: selectors.selectloadingState,
+  page: selectors.selectPage,
 });
 
 const mapDispatchToProps = dispatch => ({
-  getUsersSaga: () => dispatch(getUsersSaga())
+  getBooks: query => dispatch(getBooks(query)),
+  setCurrentPage: page => dispatch(setCurrentPage(page)),
+  setSearchType: searchType => dispatch(setSearchType(searchType)),
+  updateLocation: ({ page, searchType }) => dispatch(updateLocation({ page, searchType })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

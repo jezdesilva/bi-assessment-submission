@@ -1,7 +1,10 @@
-import { combineReducers } from 'redux';
+import { combineReducers } from 'redux-immer';
+import { connectRouter } from 'connected-react-router';
+import produce from 'immer';
 
-import usersReducer from './users';
+import booksReducer from './books';
 
-export default combineReducers({
-  usersReducer
+export default history => combineReducers(produce, {
+  router: connectRouter(history),
+  booksReducer
 });
